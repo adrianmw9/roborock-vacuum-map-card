@@ -14086,12 +14086,12 @@ function ew(n, i) {
     fr(o.x2, o.y1, i),
     fr(o.x2, o.y2, i),
     fr(o.x1, o.y2, i)
-  ], s = r.map(({ x: f }) => f), d = r.map(({ y: f }) => f);
+  ], s = r.map(({ x: m }) => m), d = r.map(({ y: m }) => m), f = (m) => Math.round(m / 5) * 5;
   return {
-    x1: Math.round(Math.min(...s)),
-    y1: Math.round(Math.min(...d)),
-    x2: Math.round(Math.max(...s)),
-    y2: Math.round(Math.max(...d))
+    x1: f(Math.min(...s)),
+    y1: f(Math.min(...d)),
+    x2: f(Math.max(...s)),
+    y2: f(Math.max(...d))
   };
 }
 function tw(n, i) {

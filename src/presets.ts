@@ -59,6 +59,17 @@ export const BUILT_IN_PRESETS: PresetConfig[] = [
   },
 ];
 
+function adaptBuiltInPreset(preset: PresetConfig, capabilities: RoborockCapabilities): PresetConfig {
+  if (preset.cleaning_type === 'vacuum') return preset;
+  const adapted = { ...preset };
+  // Some Roborock models expose only the high-level vac_and_mop selector.
+  // Route and water-flow entities are optional, so keep the built-in mode
+  // usable and let the vacuum retain its current app/device defaults.
+  if (capabilities.mopModes.length === 0) delete adapted.mop_mode;
+  if (capabilities.mopIntensities.length === 0) delete adapted.mop_intensity;
+  return adapted;
+}
+
 function missingOption(
   config: RoborockVacuumMapCardConfig,
   capabilities: RoborockCapabilities,
@@ -103,7 +114,11 @@ export function getAvailablePresets(
   const builtIns = config.enable_mop_only
     ? BUILT_IN_PRESETS
     : BUILT_IN_PRESETS.filter((preset) => preset.cleaning_type !== 'mop');
-  return [...builtIns, ...(config.presets ?? [])].map((preset) => {
+  const presets = [
+    ...builtIns.map((preset) => adaptBuiltInPreset(preset, capabilities)),
+    ...(config.presets ?? []),
+  ];
+  return presets.map((preset) => {
     const missing = missingOption(config, capabilities, preset, floor);
     return {
       preset,

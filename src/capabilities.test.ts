@@ -39,13 +39,16 @@ describe('capability detection and presets', () => {
       .find(({ preset }) => preset.id === 'mop_only')?.available).toBe(false);
   });
 
-  it('does not require mop capabilities for Vacuum-only', () => {
+  it('keeps built-in modes usable when optional mop controls are absent', () => {
     const hass = createHass();
     hass.states['select.mop_mode'].attributes.options = [];
     hass.states['select.mop_intensity'].attributes.options = [];
     const presets = getAvailablePresets(configFixture, detectCapabilities(hass, configFixture));
     expect(presets.find(({ preset }) => preset.id === 'vacuum_only')?.available).toBe(true);
-    expect(presets.find(({ preset }) => preset.id === 'vacuum_and_mop')?.available).toBe(false);
+    const vacAndMop = presets.find(({ preset }) => preset.id === 'vacuum_and_mop');
+    expect(vacAndMop?.available).toBe(true);
+    expect(vacAndMop?.preset).not.toHaveProperty('mop_mode');
+    expect(vacAndMop?.preset).not.toHaveProperty('mop_intensity');
   });
 
   it('disables vacuum-only presets without the high-level cleaning mode', () => {

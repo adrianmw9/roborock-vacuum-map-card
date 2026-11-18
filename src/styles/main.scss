@@ -191,6 +191,23 @@ svg { width: 20px; height: 20px; stroke-width: 2; }
   text-align: center;
 }
 
+.map-warning {
+  position: absolute;
+  z-index: 6;
+  right: 10px;
+  bottom: 10px;
+  left: 10px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--warning-color, #f59e0b) 55%, var(--rvm-border));
+  border-radius: 12px;
+  color: var(--rvm-text);
+  background: color-mix(in srgb, var(--rvm-surface) 92%, transparent);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+  backdrop-filter: blur(10px);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
 .selection-row {
   display: flex;
   align-items: center;

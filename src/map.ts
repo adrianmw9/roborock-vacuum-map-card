@@ -131,11 +131,12 @@ export function mapZoneToVacuumZone(zone: MapZone, calibration: CalibrationPoint
   ];
   const xs = points.map(({ x }) => x);
   const ys = points.map(({ y }) => y);
+  const roundToRoborockGrid = (value: number): number => Math.round(value / 5) * 5;
   return {
-    x1: Math.round(Math.min(...xs)),
-    y1: Math.round(Math.min(...ys)),
-    x2: Math.round(Math.max(...xs)),
-    y2: Math.round(Math.max(...ys)),
+    x1: roundToRoborockGrid(Math.min(...xs)),
+    y1: roundToRoborockGrid(Math.min(...ys)),
+    x2: roundToRoborockGrid(Math.max(...xs)),
+    y2: roundToRoborockGrid(Math.max(...ys)),
   };
 }
 

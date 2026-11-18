@@ -37,6 +37,17 @@ describe('map metadata', () => {
     });
   });
 
+  it('snaps drawn zones to the Q10 5 mm coordinate grid', () => {
+    const calibration = [
+      { vacuum: { x: 25500, y: 25500 }, map: { x: 51.6, y: 508 } },
+      { vacuum: { x: 30500, y: 25500 }, map: { x: 451.6, y: 508 } },
+      { vacuum: { x: 25500, y: 30500 }, map: { x: 51.6, y: 108 } },
+    ];
+    const converted = mapZoneToVacuumZone({ x1: 100, y1: 400, x2: 200, y2: 300 }, calibration);
+    expect(converted).toEqual({ x1: 26105, y1: 26850, x2: 27355, y2: 28100 });
+    expect(Object.values(converted).every((coordinate) => coordinate % 5 === 0)).toBe(true);
+  });
+
   it('refuses missing or degenerate calibration instead of guessing', () => {
     expect(() => vacuumToMap(1, 2, [])).toThrow('At least three calibration points');
   });

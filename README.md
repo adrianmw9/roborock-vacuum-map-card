@@ -30,7 +30,7 @@ A Roborock-native Home Assistant Dashboard card for selecting multiple rooms and
 - [Roborock Custom Map](https://github.com/Python-roborock/RoborockCustomMap) for an image entity containing `rooms` and `calibration_points`
 - HACS is recommended for installation
 
-The card never guesses room hitboxes. A missing custom-map image, room metadata, or calibration produces a prerequisite error.
+The card never guesses room hitboxes. A missing custom-map image or calibration produces a prerequisite error. When room metadata is absent, the map remains visible with a warning, but room selection is unavailable.
 
 ## Install with HACS
 

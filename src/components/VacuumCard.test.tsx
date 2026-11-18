@@ -23,6 +23,17 @@ function drawZone(start = { x: 700, y: 200 }, end = { x: 900, y: 400 }) {
 }
 
 describe('vacuum card flows', () => {
+  it('keeps the map visible when room metadata is missing', () => {
+    const hass = createHass();
+    hass.states['image.downstairs'].attributes.rooms = {};
+    render(<VacuumCard hass={hass} config={configFixture} />);
+
+    expect(screen.getByRole('img', { name: 'Downstairs vacuum map' })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Roborock Custom Map room metadata is missing. No hitboxes were guessed.',
+    );
+  });
+
   it('draws a zone and offers only Vacuum and Vac & Mop by default before using the native action', async () => {
     const hass = createHass();
     const calls: Array<{ domain: string; service: string; data?: Record<string, unknown> }> = [];
@@ -33,6 +44,8 @@ describe('vacuum card flows', () => {
     render(<VacuumCard hass={hass} config={configFixture} />);
     loadMap();
     await userEvent.click(screen.getByRole('tab', { name: 'Zone' }));
+    expect(screen.getByRole('button', { name: 'Zoom in' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Zoom out' })).toBeEnabled();
     drawZone();
     expect(screen.getByText('Drag to move or use the corners to resize')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Configure job' }));

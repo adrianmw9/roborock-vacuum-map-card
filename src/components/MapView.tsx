@@ -43,8 +43,8 @@ function Controls({ locked, zoneMode, hasZone, disabled, clearZoneLabel, onToggl
   const { zoomIn, zoomOut, resetTransform } = useControls();
   return (
     <div className="map-controls">
-      <button type="button" aria-label="Zoom in" onClick={() => zoomIn()} disabled={locked || zoneMode}><ZoomIn /></button>
-      <button type="button" aria-label="Zoom out" onClick={() => zoomOut()} disabled={locked || zoneMode}><ZoomOut /></button>
+      <button type="button" aria-label="Zoom in" onClick={() => zoomIn()} disabled={locked && !zoneMode}><ZoomIn /></button>
+      <button type="button" aria-label="Zoom out" onClick={() => zoomOut()} disabled={locked && !zoneMode}><ZoomOut /></button>
       <button type="button" aria-label="Reset zoom" onClick={() => resetTransform()}><RotateCcw /></button>
       {zoneMode ? (
         <button type="button" aria-label={clearZoneLabel} onClick={onClearZone} disabled={!hasZone || disabled}><Eraser /></button>
@@ -119,7 +119,9 @@ export function MapView({
   if (!entity || entity.state === 'unavailable') error = t(language, 'mapMissing');
   else if (!imagePath) error = t(language, 'imageMissing');
   else if (calibration.length < 3) error = t(language, 'calibrationMissing');
-  else if (selectionMode === 'rooms' && rooms.length === 0) error = t(language, 'roomsMissing');
+  const roomWarning = selectionMode === 'rooms' && rooms.length === 0
+    ? t(language, 'roomsMissing')
+    : undefined;
 
   if (error) {
     return <div className="map-error" role="alert">{error}</div>;
@@ -127,6 +129,7 @@ export function MapView({
 
   return (
     <div className={`map-shell ${selectionMode === 'zone' ? 'zone-mode' : ''}`} ref={shellRef}>
+      {roomWarning && <div className="map-warning" role="status">{roomWarning}</div>}
       <TransformWrapper
         initialScale={1}
         minScale={0.75}

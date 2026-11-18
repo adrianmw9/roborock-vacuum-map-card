@@ -63,6 +63,45 @@ describe('vacuum card flows', () => {
     }));
   });
 
+  it('offers Vac & Mop when the model has no route or water-flow entities', async () => {
+    const hass = createHass();
+    delete hass.states['select.mop_mode'];
+    delete hass.states['select.mop_intensity'];
+    hass.states['select.cleaning_mode'].state = 'vacuum';
+    const entities = { ...configFixture.entities };
+    delete entities.mop_mode;
+    delete entities.mop_intensity;
+    const calls: Array<{ domain: string; service: string; data?: Record<string, unknown> }> = [];
+    hass.callService = vi.fn(async (domain, service, data, target) => {
+      calls.push({ domain, service, data });
+      if (domain === 'select') hass.states[String(target?.entity_id)].state = String(data?.option);
+    });
+
+    render(<VacuumCard hass={hass} config={{ ...configFixture, entities }} />);
+    loadMap();
+    await userEvent.click(screen.getByRole('tab', { name: 'Zone' }));
+    drawZone();
+    await userEvent.click(screen.getByRole('button', { name: 'Configure job' }));
+    const dialog = screen.getByRole('dialog');
+    const vacAndMop = within(dialog).getByRole('tab', { name: 'Vac & Mop' });
+    expect(vacAndMop).toBeEnabled();
+    await userEvent.click(vacAndMop);
+    expect(within(dialog).queryByRole('slider', { name: 'Water flow' })).not.toBeInTheDocument();
+    expect(within(dialog).queryByText('Mop route')).not.toBeInTheDocument();
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Start' }));
+
+    await waitFor(() => expect(calls).toContainEqual({
+      domain: 'roborock',
+      service: 'set_vacuum_zoned_cleaning',
+      data: { x1: 26750, y1: 24250, x2: 29250, y2: 26750, repeats: 1 },
+    }));
+    expect(calls).toContainEqual({
+      domain: 'select',
+      service: 'select_option',
+      data: { option: 'vac_and_mop' },
+    });
+  });
+
   it('selects multiple rooms and opens Configure job', async () => {
     render(<VacuumCard hass={createHass()} config={configFixture} />);
     loadMap();
